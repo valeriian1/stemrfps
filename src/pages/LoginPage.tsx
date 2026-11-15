@@ -1,86 +1,95 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-form'; // Wait, it should be react-hook-form
-import { useForm as useHookForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Link, useNavigate } from 'react-router-dom';
-import { loginSchema } from '../schemas';
-import { useAuth } from '../context/AuthContext';
-import { authService } from '../services/authService';
-import { ErrorMessage } from '../components/UIHelpers';
+import { useNavigate } from "react-router-dom";
+import { useState, type FormEvent } from "react";
+import { ErrorNotice } from "../components/WheatUI";
 
-type LoginForm = z.infer<typeof loginSchema>;
-
-const LoginPage: React.FC = () => {
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useHookForm<LoginForm>({
-    resolver: zodResolver(loginSchema)
-  });
-  const [error, setError] = useState<string | null>(null);
-  const { setUser } = useAuth();
+export default function LoginPage() {
   const navigate = useNavigate();
+  const [register, setRegister] = useState(false);
+  const [error, setError] = useState("");
 
-  const onSubmit = async (data: LoginForm) => {
-    try {
-      setError(null);
-      const user = await authService.login(data);
-      setUser(user);
-      navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'Помилка входу');
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const fields = new FormData(event.currentTarget);
+    const login = String(fields.get("login")).trim().toLowerCase();
+    const password = String(fields.get("password"));
+    setError("");
+    if (login.length < 3 || login.length > 64) {
+      setError("Логін має містити від 3 до 64 символів.");
+      return;
     }
-  };
+    if (register && password !== fields.get("confirmation")) {
+      setError("Паролі не збігаються.");
+      return;
+    }
+    navigate("/analyze");
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-md border border-slate-100">
-        <div>
-          <h2 className="mt-2 text-center text-3xl font-extrabold text-slate-900">Вхід в систему</h2>
-        </div>
-        
-        {error && <ErrorMessage message={error} />}
-
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-700">Email адреса</label>
+    <div className="page-stack login-page">
+      <header className="page-heading">
+        <h1>{register ? "Зареєструватися" : "Увійти"}</h1>
+        <p>
+          {register
+            ? "Оберіть логін і пароль."
+            : "Увійдіть, щоб перейти до аналізу фото пшениці."}
+        </p>
+      </header>
+      <form className="panel form-stack" onSubmit={submit}>
+        <label>
+          Логін
+          <input
+            name="login"
+            required
+            minLength={3}
+            maxLength={64}
+            autoComplete="username"
+            autoCapitalize="none"
+          />
+        </label>
+        <label>
+          Пароль
+          <input
+            name="password"
+            type="password"
+            required
+            minLength={8}
+            maxLength={128}
+            autoComplete={register ? "new-password" : "current-password"}
+          />
+        </label>
+        {register && (
+          <>
+            <p className="muted">Пароль має містити щонайменше 8 символів.</p>
+            <label>
+              Повторіть пароль
               <input
-                id="email"
-                type="email"
-                {...register('email')}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-              />
-              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-700">Пароль</label>
-              <input
-                id="password"
+                name="confirmation"
                 type="password"
-                {...register('password')}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                required
+                minLength={8}
+                maxLength={128}
+                autoComplete="new-password"
               />
-              {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-green-400"
-            >
-              {isSubmitting ? 'Вхід...' : 'Увійти'}
-            </button>
-          </div>
-        </form>
-        <div className="text-center mt-4">
-          <Link to="/register" className="font-medium text-green-600 hover:text-green-500 text-sm">
-            Немає акаунта? Зареєструватися
-          </Link>
+            </label>
+          </>
+        )}
+        {error && <ErrorNotice>{error}</ErrorNotice>}
+        <div className="auth-actions">
+          <button className="button primary" type="submit">
+            {register ? "Зареєструватися" : "Увійти"}
+          </button>
+          <button
+            className="button secondary"
+            type="button"
+            onClick={() => {
+              setRegister(!register);
+              setError("");
+            }}
+          >
+            {register ? "Уже маю обліковий запис" : "Створити обліковий запис"}
+          </button>
         </div>
-      </div>
+      </form>
     </div>
   );
-};
-
-export default LoginPage;
+}

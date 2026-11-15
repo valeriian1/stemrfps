@@ -1,17 +1,12 @@
-# Діаграма станів компонента PhotoUploader
+# Стани блока фотоаналізу
 
-```mermaid
-stateDiagram-v2
-    [*] --> idle
-    idle --> validating : fileSelected
-    validating --> invalid : validationFailed
-    validating --> ready : validationPassed
-    invalid --> validating : newFileSelected
-    ready --> analyzing : startAnalysis
-    ready --> idle : reset
-    analyzing --> result : analysisSuccess
-    analyzing --> error : analysisFailed
-    result --> idle : reset
-    error --> idle : reset
-    result --> [*]
-```
+Діаграма: diagrams/photo-states.drawio. Це один компонент інтерфейсу AnalyzePage, а не стани всього сайту.
+
+- idle → validating: вибір файла.
+- validating → ready: файл підготовлено; → error: валідація/декодування неуспішні.
+- ready → analyzing: запуск; → idle: прибирання фото.
+- analyzing → result: відповідь сервісу; → ready: скасування; → error: виняток.
+- error → validating: інший файл; → analyzing: повтор за наявності підготовленого фото.
+- result → idle: «Аналізувати інше фото».
+
+Заміна файла у видимій формі з будь-якого стану інвалідовує стару операцію і починає validating. Після result форма прихована, тож спочатку треба повернутися в idle. AbortController та operation.current запобігають застосуванню застарілої відповіді. Вихід зі сторінки скасовує операцію. Основні стрілки показані на діаграмі, загальні переходи описані тут.

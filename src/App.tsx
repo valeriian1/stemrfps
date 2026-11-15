@@ -1,36 +1,32 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Layout from './components/Layout';
-import ProtectedRoute from './components/ProtectedRoute';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
-import FieldsPage from './pages/FieldsPage';
-import DiagnosisPage from './pages/DiagnosisPage';
-import JournalPage from './pages/JournalPage';
-import { AuthProvider } from './context/AuthContext';
+import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
+import Layout from "./components/Layout";
+import AnalyzePage from "./pages/AnalyzePage";
+import DiseasePage from "./pages/DiseasePage";
+import DiseasesPage from "./pages/DiseasesPage";
+import LoginPage from "./pages/LoginPage";
 
-function App() {
+export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-
-          {/* Protected routes */}
-          <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="fields" element={<FieldsPage />} />
-            <Route path="diagnosis" element={<DiagnosisPage />} />
-            <Route path="journal" element={<JournalPage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<Navigate to="/login" replace />} />
+          <Route path="login" element={<LoginPage />} />
+          <Route path="analyze" element={<AnalyzePage />} />
+          <Route path="history" element={<Navigate to="/analyze" replace />} />
+          <Route path="diseases" element={<DiseasesPage />} />
+          <Route path="diseases/:diseaseId" element={<DiseasePage />} />
+          <Route
+            path="*"
+            element={
+              <div className="empty">
+                <h1>Сторінку не знайдено</h1>
+                <Link to="/analyze">Перейти до аналізу</Link>
+              </div>
+            }
+          />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;

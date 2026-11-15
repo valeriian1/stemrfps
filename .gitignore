@@ -22,3 +22,23 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Generated verification artifacts
+playwright-report/
+test-results/
+coverage/
+tmp/
+docs/alpha-*.png
+docs/before.png
+docs/screenshots/alpha-*.png
+# Local document locks and superseded exports
+~$*
+output/docx/agrodiag-stem-report.docx
+output/pdf/
+output/verification/before-optimization/
+output/verification/e2e-first-run.txt
+output/wheat-photos/
+output/wheat-photos.zip
+.env
+.env.*
+!.env.example
