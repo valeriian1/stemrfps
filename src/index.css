@@ -523,7 +523,7 @@ details[open] > .form-stack {
   }
 }
 
-/* Photo cards and upload interaction. */
+/* Картки фото та завантаження. */
 .disease-grid .disease-summary {
   flex-direction: column;
   align-items: stretch;
@@ -618,7 +618,7 @@ details[open] > .form-stack {
   }
 }
 
-/* Compact application sidebar. */
+/* Бічна панель. */
 .site-layout {
   margin: 0;
   min-height: 100dvh;
@@ -1252,7 +1252,7 @@ details[open] > .form-stack {
     align-items: center;
   }
 }
-/* Dashboard card hierarchy and rounded ring. */
+/* Картки дашборда та кільцева діаграма. */
 .analytics-data > .area-stat {
   flex-direction: column;
   align-items: stretch;

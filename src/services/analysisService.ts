@@ -4,7 +4,7 @@ import {
   type DemoScenario,
 } from "../domain/wheat";
 
-// The frontend depends on this asynchronous contract, not on a particular model.
+// Імітація асинхронного запиту до сервісу аналізу.
 export async function analyzePhoto(
   _photo: Blob,
   scenario: DemoScenario,

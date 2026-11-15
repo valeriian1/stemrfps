@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Keep schema validation compatible with our no-eval Content Security Policy.
+// CSP забороняє eval, тому Zod працює без JIT.
 z.config({ jitless: true });
 
 export const diseaseIds = [

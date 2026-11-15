@@ -24,6 +24,7 @@ dist-ssr
 *.sw?
 
 # Generated verification artifacts
+output/
 playwright-report/
 test-results/
 coverage/
