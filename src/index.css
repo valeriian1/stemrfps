@@ -589,8 +589,8 @@ details[open] > .form-stack {
   border-top: 0;
   border-bottom-color: #253a2d;
 }
-.upload-control:hover .upload-tooltip,
-.upload-control:focus-within .upload-tooltip {
+.upload-target:not([data-tooltip-blocked="true"]):hover + .upload-tooltip,
+.upload-target:not([data-tooltip-blocked="true"]):has(input:focus-visible) + .upload-tooltip {
   opacity: 1;
 }
 .analysis-loading {
@@ -976,6 +976,7 @@ details[open] > .form-stack {
   gap: 36px;
 }
 .analytics-photo {
+  align-self: start;
   margin: 0;
   display: flex;
   flex-direction: column;
@@ -988,10 +989,10 @@ details[open] > .form-stack {
 }
 .analytics-photo img {
   width: 100%;
-  height: 0;
-  min-height: 220px;
-  flex: 1;
-  object-fit: cover;
+  height: auto;
+  min-height: 0;
+  flex: none;
+  object-fit: contain;
   border-radius: 18px;
   background: #f4f6f1;
 }
@@ -1199,11 +1200,6 @@ details[open] > .form-stack {
   .analytics-grid {
     grid-template-columns: 1fr;
     gap: 16px;
-  }
-  .analytics-photo img {
-    height: 120px;
-    min-height: 120px;
-    flex: none;
   }
   .analytics-photo figcaption {
     font-size: 12px;
@@ -1418,4 +1414,53 @@ details[open] > .form-stack {
   .mobile-menu-trigger { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: var(--ink); cursor: pointer; }
   .mobile-menu-trigger:hover, .mobile-menu-trigger[aria-expanded="true"] { background: #c2d7ad; }
   .account-popover { inset: 64px 12px auto auto; max-width: calc(100vw - 24px); }
+}
+
+@media print {
+  @page { size: A4; margin: 15mm; }
+  html:has(.analytics),
+  body:has(.analytics),
+  body:has(.analytics) #root {
+    background: white;
+    min-height: 0;
+  }
+  body:has(.analytics) {
+    background: white;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  body:has(.analytics) .site-nav,
+  body:has(.analytics) .skip-link,
+  body:has(.analytics) aside,
+  body:has(.analytics) .mobile-header,
+  body:has(.analytics) [popover],
+  body:has(.analytics) .page-heading,
+  .export-report,
+  .analytics-panel > .actions,
+  .diagnosis-summary a { display: none !important; }
+  body:has(.analytics) .site-layout,
+  body:has(.analytics) .workspace-surface,
+  body:has(.analytics) .site-main,
+  .analysis-page:has(.analytics-panel),
+  .analytics-panel {
+    display: block;
+    min-height: 0;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: white;
+    box-shadow: none;
+  }
+  .analytics { gap: 16px; }
+  .analytics-heading { margin-bottom: 16px; }
+  .analytics-grid { grid-template-columns: 1fr 2fr; gap: 16px; }
+  .analytics-data { grid-template-columns: 1fr; gap: 12px; }
+  .analytics-photo img { max-height: 100mm; }
+  .analytics-photo,
+  .diagnosis-summary,
+  .area-stat,
+  .prediction-chart { break-inside: avoid; }
+  .analytics-note { font-size: 12px; }
 }

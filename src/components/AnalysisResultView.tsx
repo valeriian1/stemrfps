@@ -15,7 +15,13 @@ export default function AnalysisResultView({
     <section className="analytics" aria-label="Звіт аналізу">
       <div className="analytics-heading">
         <h2>Результат аналізу</h2>
-        <span className="demo-badge">Демонстраційні дані</span>
+        <button
+          className="button secondary export-report"
+          onClick={() => window.print()}
+          title="Відкрити друк і вибрати «Зберегти як PDF»"
+        >
+          Експортувати звіт
+        </button>
       </div>
       <div className="analytics-grid">
         {preview && (

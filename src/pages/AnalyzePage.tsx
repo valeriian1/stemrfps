@@ -12,6 +12,7 @@ export default function AnalyzePage() {
     "idle" | "validating" | "ready" | "analyzing" | "result" | "error"
   >("idle");
   const [error, setError] = useState("");
+  const [tooltipBlocked, setTooltipBlocked] = useState(false);
   const preview = useBlobUrl(photo);
   const operation = useRef(0),
     busy = useRef(false);
@@ -35,6 +36,7 @@ export default function AnalyzePage() {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
+    setTooltipBlocked(true);
     resetResult();
     const current = operation.current;
     setPhoto(null);
@@ -107,7 +109,12 @@ export default function AnalyzePage() {
         >
           <div className="upload-control">
             <h2 className="upload-heading">Фото листка</h2>
-            <label className="upload-placeholder upload-target">
+            <label
+              className="upload-placeholder upload-target"
+              data-tooltip-blocked={tooltipBlocked}
+              onPointerLeave={() => setTooltipBlocked(false)}
+              onBlur={() => setTooltipBlocked(false)}
+            >
               <input
                 aria-label="Обрати фото"
                 title=" "
@@ -142,7 +149,7 @@ export default function AnalyzePage() {
             <span className="upload-tooltip" id="upload-tip" role="tooltip">
               {preview
                 ? "Замінити фото"
-                : "Оберіть фото JPEG, PNG або WebP до 10 МіБ"}
+                : "Оберіть фото JPEG, PNG або WebP до 10 МБ"}
             </span>
           </div>
           {state === "validating" && <p role="status">Підготовка фото…</p>}

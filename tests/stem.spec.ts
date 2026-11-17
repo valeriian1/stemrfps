@@ -2,6 +2,40 @@ import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 const photo = "public/reference/brown-rust.jpg";
 
+test("підказка після вибору фото, пропорції та експорт", async ({ page }) => {
+  await page.setViewportSize({ width: 760, height: 900 });
+  await page.goto("/analyze");
+  const upload = page.locator(".upload-target");
+  const tip = page.getByRole("tooltip");
+  await upload.hover();
+  await expect(tip).toHaveCSS("opacity", "1");
+  await expect(tip).toContainText("10 МБ");
+  await page.getByLabel("Обрати фото").setInputFiles(photo);
+  await expect(page.getByRole("button", { name: "Здійснити аналіз", exact: true })).toBeEnabled();
+  await expect(tip).toHaveCSS("opacity", "0");
+  await page.mouse.move(0, 0);
+  await upload.hover();
+  await expect(tip).toHaveCSS("opacity", "1");
+  await expect(tip).toHaveText("Замінити фото");
+  await page.getByRole("button", { name: "Здійснити аналіз", exact: true }).click();
+  const image = page.locator(".analytics-photo img");
+  await expect(image).toBeVisible();
+  for (const width of [1280, 760, 375]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect.poll(() => image.evaluate((img: HTMLImageElement) => {
+      const rect = img.getBoundingClientRect();
+      return Math.abs(rect.width / rect.height - img.naturalWidth / img.naturalHeight);
+    })).toBeLessThan(0.02);
+  }
+  await page.evaluate(() => { window.print = () => document.body.setAttribute("data-print-called", "true"); });
+  await page.getByRole("button", { name: "Експортувати звіт" }).click();
+  await expect(page.locator("body")).toHaveAttribute("data-print-called", "true");
+  await page.emulateMedia({ media: "print" });
+  await expect(page.locator(".export-report")).toBeHidden();
+  await expect(page.locator(".analytics-note")).toBeVisible();
+  await expect(page.locator(".mobile-header")).toBeHidden();
+});
+
 test("вхід, реєстрація, валідація та вихід", async ({ page }) => {
   await page.goto("/login");
   await expect(page.locator("aside")).toHaveCount(0);
