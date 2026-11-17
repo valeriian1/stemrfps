@@ -1,8 +1,10 @@
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { referencePhotos } from "../data/referencePhotos";
 import { diseases, getDisease } from "../data/wheatDiseases";
+import { useAnalysisDraft } from "../components/analysisDraft";
 
 export default function DiseasesPage() {
+  const { draft } = useAnalysisDraft();
   const [params, setParams] = useSearchParams();
   const query = params.get("q") ?? "";
   const words = query
@@ -34,6 +36,7 @@ export default function DiseasesPage() {
   }
   return (
     <div className="page-stack">
+      {draft && <Link to="/analyze">Повернутися до результату аналізу</Link>}
       <header className="page-heading">
         <h1>Довідник хвороб пшениці</h1>
       </header>

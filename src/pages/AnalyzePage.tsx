@@ -4,13 +4,15 @@ import { preparePhoto } from "../services/photoService";
 import { errorText, type AnalysisResult } from "../domain/wheat";
 import { ErrorNotice, useBlobUrl } from "../components/WheatUI";
 import AnalysisResultView from "../components/AnalysisResultView";
+import { useAnalysisDraft } from "../components/analysisDraft";
 
 export default function AnalyzePage() {
-  const [photo, setPhoto] = useState<Blob | null>(null);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const { draft, setDraft } = useAnalysisDraft();
+  const [photo, setPhoto] = useState<Blob | null>(draft?.photo ?? null);
+  const [result, setResult] = useState<AnalysisResult | null>(draft?.result ?? null);
   const [state, setState] = useState<
     "idle" | "validating" | "ready" | "analyzing" | "result" | "error"
-  >("idle");
+  >(draft ? "result" : "idle");
   const [error, setError] = useState("");
   const [tooltipBlocked, setTooltipBlocked] = useState(false);
   const preview = useBlobUrl(photo);
@@ -26,6 +28,7 @@ export default function AnalyzePage() {
     [],
   );
   function resetResult() {
+    setDraft(null);
     operation.current++;
     controller.current?.abort();
     busy.current = false;
@@ -67,6 +70,7 @@ export default function AnalyzePage() {
       const next = await analyzePhoto(photo, "suspected_disease", abort.signal);
       if (current !== operation.current) return;
       setResult(next);
+      setDraft({ photo, result: next });
       setState("result");
       requestAnimationFrame(() => resultRef.current?.focus());
     } catch (e) {

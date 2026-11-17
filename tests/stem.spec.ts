@@ -94,10 +94,8 @@ test("фото, скасування, дашборд, стаття та нови
     await expect(page.locator("#mobile-menu")).toBeVisible();
   }
   await page.getByRole("link", { name: "Аналіз", exact: true }).click();
-  await page.getByLabel("Обрати фото").setInputFiles(photo);
-  await page
-    .getByRole("button", { name: "Здійснити аналіз", exact: true })
-    .click();
+  await expect(page.getByRole("heading", { name: "Результат аналізу" })).toBeVisible();
+  await expect(page.locator(".analytics-photo img")).toBeVisible();
   await page.getByRole("button", { name: "Аналізувати інше фото" }).click();
   await expect(
     page.getByRole("button", { name: "Здійснити аналіз", exact: true }),
@@ -267,4 +265,34 @@ test("мобільне меню: переходи, закриття та змі�
   await expect(menu).toBeHidden();
   await expect(trigger).toBeHidden();
   await expect(page.locator(".site-header")).toBeVisible();
+});
+
+test('повернення зі статті й довідника зберігає аналіз', async ({ page }) => {
+  await page.goto('/analyze');
+  await page.getByLabel('Обрати фото').setInputFiles(photo);
+  await page.getByRole('button', { name: 'Здійснити аналіз', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Результат аналізу' })).toBeVisible();
+  const fingerprint = () => page.locator('.analytics-photo img').evaluate(async (img: HTMLImageElement) => {
+    await img.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    canvas.getContext('2d')!.drawImage(img, 0, 0);
+    return canvas.toDataURL();
+  });
+  const original = await fingerprint();
+  await page.getByRole('link', { name: /Детальніше про хворобу/ }).click();
+  await page.getByRole('link', { name: 'Повернутися до результату аналізу' }).click();
+  await expect(page.locator('.area-ring')).toHaveAttribute('aria-label', /28%/);
+  expect(await fingerprint()).toBe(original);
+  if ((page.viewportSize()?.width ?? 1280) <= 600) await page.getByRole('button', { name: 'Меню', exact: true }).click();
+  await page.getByRole('link', { name: 'Довідник', exact: true }).click();
+  await expect(page.getByRole('link', { name: 'Повернутися до результату аналізу' })).toBeVisible();
+  await page.goBack();
+  await expect(page.getByRole('heading', { name: 'Результат аналізу' })).toBeVisible();
+  expect(await fingerprint()).toBe(original);
+  await page.getByRole('button', { name: 'Аналізувати інше фото' }).click();
+  if ((page.viewportSize()?.width ?? 1280) <= 600) await page.getByRole('button', { name: 'Меню', exact: true }).click();
+  await page.getByRole('link', { name: 'Довідник', exact: true }).click();
+  await expect(page.getByRole('link', { name: 'Повернутися до результату аналізу' })).toHaveCount(0);
 });

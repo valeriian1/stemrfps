@@ -3,8 +3,10 @@ import { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getDisease } from "../data/wheatDiseases";
 import DiseaseReference from "../components/DiseaseReference";
+import { useAnalysisDraft } from "../components/analysisDraft";
 
 export default function DiseasePage() {
+  const { draft } = useAnalysisDraft();
   const { diseaseId } = useParams();
   const disease = getDisease(diseaseId ?? "");
   useEffect(() => {
@@ -21,7 +23,9 @@ export default function DiseasePage() {
   const photo = referencePhotos[disease.id];
   return (
     <article className="page-stack">
-      <Link to="/diseases">← До довідника</Link>
+      <Link to={draft ? "/analyze" : "/diseases"}>
+        {draft ? "Повернутися до результату аналізу" : "← До довідника"}
+      </Link>
       <header className="page-heading">
         <h1>{disease.nameUk}</h1>
         <p>
