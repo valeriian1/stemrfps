@@ -43,3 +43,4 @@ output/wheat-photos.zip
 .env
 .env.*
 !.env.example
+/META-USAGE
